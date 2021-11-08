@@ -1,0 +1,15 @@
+{
+    "redisConf": {
+        "host": "nubo-redis",
+        "port": "6379",
+        "db": "0",
+        "password": ""
+    },
+    "dbConf": {
+        "host": "nubo-mysql",
+        "port": "3306",
+        "name": "nubo",
+        "user": "root",
+        "password": "enc:0039b6e01b91897ce187f081cd83d3d627c819f3bda85c811fef028eed745395:7a83aa9256a97f22250d0c6c345bf174"
+    }
+}

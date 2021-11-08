@@ -1,0 +1,125 @@
+version: '3.5'
+services:
+  nubo-registry:
+    image: registry:2
+    container_name: nubo-registry
+    restart: always
+    volumes:
+      - type: bind
+        source: ./registry
+        target: /var/lib/registry
+    ports:
+      - "5000:5000"
+  nubo-mysql:
+    image: ubuntu/mysql
+    container_name: nubo-mysql
+    hostname: nubo-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - type: bind
+        source: ./mysql/data
+        target: /var/lib/mysql 
+    networks:
+      - net_db
+  nubo-redis:
+    image: redis
+    container_name: nubo-redis
+    hostname: nubo-redis
+    restart: always
+    volumes:
+      - type: bind
+        source: ./redis/data
+        target: /data
+    command: redis-server --save 60 1 --loglevel warning
+    networks:
+      - net_db    
+
+  nubo-management:
+    image: nubosoftware/nubomanagement
+    container_name: nubo-management
+    hostname: nubo-management
+    restart: always
+    volumes:
+      - type: bind
+        source: ./nubomanagement/conf
+        target: /opt/nubomanagement/conf
+      - type: bind
+        source: ./nubomanagement/locales
+        target: /opt/nubomanagement/locales
+      - type: bind
+        source: ./nubomanagement/docker_apps
+        target: /opt/nubomanagement/docker_apps
+      - type: bind
+        source: ${ROOT_DIR}/nfs/homes
+        target: ${ROOT_DIR}/nfs/homes
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    networks:
+      - net_fe
+      - net_db
+      - net_ps
+    depends_on:
+      - nubo-mysql
+      - nubo-redis
+
+  nubo-frontend:
+    image: nubosoftware/nubofrontend
+    container_name: nubo-frontend
+    hostname: nubo-frontend
+    restart: always
+    volumes:
+      - type: bind
+        source: ./frontend/conf
+        target: /opt/nubomanagement-public/conf
+    ports:
+      - "80:80"
+      - "443:443"
+      - "6080:6080"
+      - "6443:6443"
+    networks:
+      - net_fe
+      - net_guac
+    depends_on:
+      - nubo-management
+
+  nubo-guac:
+    image: guacamole/guacd
+    container_name: nubo-guac
+    hostname: nubo-guac
+    restart: always
+    networks:
+      - net_guac
+      - net_sess
+  nubo-ps:
+    image: nubosoftware/nuboplatformserver
+    container_name: nubo-ps
+    hostname: nubo-ps
+    restart: always
+    networks:
+      - net_ps
+    volumes:
+      - type: bind
+        source: ${ROOT_DIR}/platform_server/conf
+        target: /opt/platform_server/conf
+      - type: bind
+        source: ${ROOT_DIR}/nfs/homes
+        target: ${ROOT_DIR}/nfs/homes
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+  
+
+networks:
+  net_db:
+   name: net_db
+  net_ps:
+   name: net_ps
+  net_fe:
+    name: net_fe
+  net_guac:
+    name: net_guac
+  net_sess:
+    name: net_sess

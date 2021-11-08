@@ -1,0 +1,52 @@
+{
+    "logLevel": "debug",
+    "sequelizeLogs": false,
+    "encKey": "",
+    "siteAdminDomain": "nubodemo.com",
+    "authValidatorPermittedMode": false,
+    "serverurl": "http://lrdp2.nubosoftware.com/",
+    "internalurl": "http://nubo-management:8080/",
+    "nfsserver": "user@127.0.0.1",
+    "controlPanelURL": "http://lrdp2.nubosoftware.com/",
+    "nfshomefolder": "/srv/nfs/homes/",
+    "sessionTimeout": 600,
+    "sshPrivateKey": ".ssh/id_rsa",
+    "adminName": "Admin",
+    "platformType": "docker",
+    "dcName": "dc",
+    "listenAddresses": [
+        "http://"
+    ],
+    "internalip": [
+        "nubo-management"
+    ],
+    "registryURL": "labil.nubosoftware.com:5000",
+    "mailOptions": false,
+    "startPlatformNum": 1,
+    "platformParams": {
+        "concurrency": 3,
+        "concurrencyDelay": 20,
+        "platformPoolSize": 0,
+        "explatformPoolSize": 0,
+        "upperCapacityLevel": 0.5,
+        "bottomCapacityLevel": 0,
+        "maxCapacity": 20,
+        "usersPerPlatform": 20,
+        "choosePool": 10,
+        "maxFailed": 0,
+        "maxFails": 5,
+        "fixedPool": true,
+        "cleanPlatformsMode": false
+    },
+    "platformCred": false,    
+    "http_proxy": false,    
+    "NotificationGateway": {
+        "smsUrl": "http://127.0.0.1/SmsNotification/sendSmsNotificationFromRemoteServer",
+        "url": "http://127.0.0.1/Notifications/sendNotificationFromRemoteServer",
+        "serverID": "BE",
+        "authKey": "BEBE"
+    },
+    "publicServerCredentials": {},
+    "platformVersionCode": 300,
+    "autoActivationOnce": true
+}

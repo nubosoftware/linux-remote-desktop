@@ -1,0 +1,32 @@
+{
+    "logLevel": "debug",
+    "webCommon": {
+        "production": true
+    },
+    "internalurl": "http://nubo-management:8080/",
+    "listenAddresses": [
+        {
+            "address": "http://0.0.0.0",
+            "api": false,
+            "client": true
+        },
+        {
+            "address": "http://0.0.0.0:6080",
+            "api": true,
+            "client": false
+        }
+    ],
+    "http_proxy": false,
+    "RemoteServers": {},
+    "backendAuth": {
+        "user": "frontend",
+        "password": "j3NgzXhRg02d6sKBIxZh"
+    },
+    "NotificationGateway": {
+        "smsUrl": "https://gl.nubosoftware.com/SmsNotification/sendSmsNotificationFromRemoteServer",
+        "url": "https://gl.nubosoftware.com/Notifications/sendNotificationFromRemoteServer",
+        "serverID": "DEFAULT",
+        "authKey": "DEFAULT"
+    },
+    "username": false
+}

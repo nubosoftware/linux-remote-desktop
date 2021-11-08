@@ -1,0 +1,6 @@
+{  
+  "listenAddresses": [
+    "http://:3333",
+    "https://:3334"
+  ]
+}
