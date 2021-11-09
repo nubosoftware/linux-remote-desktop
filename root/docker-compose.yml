@@ -20,7 +20,10 @@ services:
     volumes:
       - type: bind
         source: ./mysql/data
-        target: /var/lib/mysql 
+        target: /var/lib/mysql
+      - type: bind
+        source: ./mysql/init
+        target: /var/lib/mysql-init
     networks:
       - net_db
   nubo-redis:

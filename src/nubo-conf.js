@@ -161,10 +161,28 @@ async function main() {
         input: process.stdin,
         output: process.stdout
     });
-    try {
+    let exitCode = 0;
+    let hostname;
+    let runInDocker = false;
+    try {        
         console.log(`Nubo configurator. Starting configuration`);
         root = path.resolve(options.path);
         console.log(`Root path: ${root}`);
+
+        if (process.env.DOCKER_ENV) {
+            runInDocker = true;
+        }
+        // read previous run configuration fie
+        let prevRun = {};
+        try {
+            // read previous run params (if exists)
+            prevRun = await readJSONFile('.nubo-conf-params');
+            // delete params
+            await fs.unlink(path.join(root,'.nubo-conf-params'));
+        } catch (e) {
+            // ignore any error
+        }
+
         // reading current configuration
         let settings = await readJSONFile('nubomanagement/conf/Settings.json');
         const dcName = settings.dcName;
@@ -185,8 +203,12 @@ async function main() {
             await fs.rmdir(path.join(root, "mysql/data"), { recursive: true });
         }
 
-        let hostname = os.hostname();
-        hostname = await question("Enter host name:",hostname);
+        hostname = ( process.env.DEF_HOSTNAME ? process.env.DEF_HOSTNAME : os.hostname());
+        if (prevRun.exitCode > 1 && prevRun.hostname) {
+            hostname = prevRun.hostname;
+        } else {
+            hostname = await question("Enter host name:",hostname);
+        }
         const registryURL = `${hostname}:5000`;
         
         let daemonJson;
@@ -203,11 +225,18 @@ async function main() {
             daemonJson["insecure-registries"].push(registryURL);
             try {
                 await writeJSONFile("/etc/docker/daemon.json",daemonJson);
-                await execCmd("systemctl",["reload","docker"]);
+                if (!runInDocker) {
+                    await execCmd("systemctl",["reload","docker"]);
+                } else {
+                    exitCode = 2;
+                    return;
+                }
             } catch (e) {
-                console.log(`Cannot update /etc/docker/daemon.json. Error: ${e},\n You may need to re-run this script as root or update the file manually to: ${JSON.stringify(daemonJson)}`);
-                return;
+                console.log(`Cannot update /etc/docker/daemon.json. Error: ${e},\n You may need to re-run this script as root or update the file manually to: ${JSON.stringify(daemonJson)}`);                
+                throw e;
+                
             }
+            
         }
 
         console.log(`Starting registry. Registry URL: ${registryURL}`);
@@ -250,7 +279,7 @@ async function main() {
         await writeJSONFile('nubomanagement/conf/sysconf', sconf);
 
         // copy the start mysql schema to the container
-        ret = await execDockerCmd(["cp", "scripts/nubo_start_db.sql", `nubo-mysql:/tmp`]);
+        //ret = await execDockerCmd(["cp", "scripts/nubo_start_db.sql", `nubo-mysql:/tmp`]);
 
 
         console.log(`Starting database..`);
@@ -265,8 +294,8 @@ async function main() {
                 schemaCreated = true;
             } catch (e) {
                 //console.error(`Schema create error: ${e}, tries: ${tryCnt}`);
-                if (tryCnt >= 10) {
-                    console.error(`Database not started after 20 seconds`, e);
+                if (tryCnt >= 40) {
+                    console.error(`Database not started after 120 seconds`, e);
                     throw e;
                 }
             }
@@ -274,7 +303,7 @@ async function main() {
 
         // create start database
         console.log("Creating database schema");
-        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `mysql -u root -p${mysqlPassword} < /tmp/nubo_start_db.sql`]);
+        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `mysql -u root -p${mysqlPassword} < /var/lib/mysql-init/nubo_start_db.sql`]);
 
         // create front end password
         frontEndPassword = randomKey(20);
@@ -342,7 +371,8 @@ async function main() {
         const envStr = `
 MYSQL_PASSWORD=none
 ROOT_DIR=${root}`;
-        await fs.writeFile(".env",envStr);
+        const envFile = path.join(root,".env");
+        await fs.writeFile(envFile,envStr);
 
         console.log("Done.");
         console.log(`Login to the admin control panel at http://${hostname}:6080/html/admin`);
@@ -350,8 +380,17 @@ ROOT_DIR=${root}`;
 
     } catch (err) {
         console.error("Error", err);
+        exitCode = 1;
     } finally {
         rl.close();
+        if (exitCode > 1) {
+            let prevRun = {
+                exitCode,
+                hostname
+            }
+            await writeJSONFile('.nubo-conf-params',prevRun);
+            process.exit(exitCode);
+        }
     }
 }
 
