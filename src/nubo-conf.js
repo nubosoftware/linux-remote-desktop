@@ -165,9 +165,22 @@ async function main() {
     let hostname;
     let runInDocker = false;
     try {        
-        console.log(`Nubo configurator. Starting configuration`);
+        console.log(`
+
+Linux Remote Desktop
+====================
+
+This script creates a linux remote desktop system in a single server.
+It installs, configures and runs all the necessary components.
+
+`);
+
+        let a = await askYesNo('Ready to begin?', "Y");
+        if (!a) {
+            return;
+        }
         root = path.resolve(options.path);
-        console.log(`Root path: ${root}`);
+        console.log(`Root path for linux remote desktop: ${root}`);
 
         if (process.env.DOCKER_ENV) {
             runInDocker = true;
@@ -190,14 +203,14 @@ async function main() {
         //console.log(`Data center name: ${dcName}`);
 
 
-        console.log("Bringing down all compose containers..");
+        console.log("Stopping all running containers..");
         let ret = await execComposesCmd(["down"]);
 
         console.log(`Checking mysql database..`);
         if (! await isDirEmpty('mysql/data')) {
             let a = await askYesNo('An existing database found. Would you like to delete it and start with a new database?', "N");
             if (!a) {
-                console.log("Quitting configurator");
+                console.log("Installation process cannot run on existing database. Exiting...");
                 return;
             }
             await fs.rmdir(path.join(root, "mysql/data"), { recursive: true });
@@ -221,7 +234,7 @@ async function main() {
             daemonJson["insecure-registries"] = [];
         }
         if (daemonJson["insecure-registries"].indexOf(registryURL) == -1) {
-            console.log(`Adding registry URL to insecure registries in /etc/docker/daemon.json`);
+            //console.log(`Adding registry URL to insecure registries in /etc/docker/daemon.json`);
             daemonJson["insecure-registries"].push(registryURL);
             try {
                 await writeJSONFile("/etc/docker/daemon.json",daemonJson);
@@ -232,7 +245,7 @@ async function main() {
                     return;
                 }
             } catch (e) {
-                console.log(`Cannot update /etc/docker/daemon.json. Error: ${e},\n You may need to re-run this script as root or update the file manually to: ${JSON.stringify(daemonJson)}`);                
+                console.log(`Cannot update /etc/docker/daemon.json. Error: ${e},\n You may need to re-run this script as root, or update the file manually to: ${JSON.stringify(daemonJson)}`);                
                 throw e;
                 
             }
@@ -249,7 +262,7 @@ async function main() {
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
 
 
-        console.log(`Pulling base image and pushing it to registry`);
+        console.log(`Pulling base image and pushing it to local registry...`);
         // upload base image to registry
         ret = await execDockerCmd(["pull", `nubosoftware/${BASE_IMAGE}`]);
         ret = await execDockerCmd(["tag", `nubosoftware/${BASE_IMAGE}`,`${registryURL}/nubo/${BASE_IMAGE}`]);
@@ -262,7 +275,7 @@ async function main() {
 
 
         //if (await isDirEmpty('mysql/data')) {
-        console.log(`Creating database`);
+        console.log(`Creating database...`);
         await fs.mkdir(path.join(root, "mysql/data"), { recursive: true });
 
         // generate random mysql password
@@ -271,7 +284,7 @@ async function main() {
         // start mysql container with the new password
         ret = await execComposesCmd(["up", "-d", "nubo-mysql"], { MYSQL_PASSWORD: mysqlPassword });
         //console.log(`start mysql: ${JSON.stringify(ret,null,2)}`);
-        console.log(`MySQL Password: ${mysqlPassword}`);
+        console.log(`Generated MySQL password: ${mysqlPassword}. Please save it to access your database.`);
 
         // write the myql password in the management configuration
         let sconf = await readJSONFile('nubomanagement/conf/sysconf');
@@ -282,7 +295,7 @@ async function main() {
         //ret = await execDockerCmd(["cp", "scripts/nubo_start_db.sql", `nubo-mysql:/tmp`]);
 
 
-        console.log(`Starting database..`);
+        console.log(`Starting database...`);
         let schemaCreated = false;
         let tryCnt = 0;
         do {
@@ -302,7 +315,7 @@ async function main() {
         } while (!schemaCreated);
 
         // create start database
-        console.log("Creating database schema");
+        console.log("Creating database schema...");
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `mysql -u root -p${mysqlPassword} < /var/lib/mysql-init/nubo_start_db.sql`]);
 
         // create front end password
@@ -332,6 +345,7 @@ async function main() {
         //let createAdmin = await askYesNo("Create site administrator?", "Y");
         //if (createAdmin) {
         // ask for admin email
+        console.log(`Creating your first administrator user\n`);
         while (!adminemail) {
             adminemail = await question("Enter admin email:", "");
             if (!validateEmail(adminemail)) {
@@ -355,7 +369,7 @@ async function main() {
             admindomain = await question("Enter admin domain", defDomain);
         }
 
-        console.log("Creating organization and first admin..");
+        console.log("Configuring organization and user...");
         ret = await execDockerCmd(["exec","nubo-management","/bin/bash", "-c", `cd /opt/nubomanagement ; node dist/createAdmin.js -e ${adminemail} -p "${adminpass}" -d ${admindomain} -s -a`]);
         //console.log(`res: ${JSON.stringify(ret,null,2)}`);
 
@@ -363,7 +377,7 @@ async function main() {
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into static_platforms values (1,"nubo-ps","nubo-ps");' | mysql -u root -p${mysqlPassword} nubo`]);
         
 
-        console.log(`Bringing up all containers..`);
+        console.log(`Starting all containers...`);
         ret = await execComposesCmd(["up", "-d"]);
 
 
@@ -374,9 +388,19 @@ ROOT_DIR=${root}`;
         const envFile = path.join(root,".env");
         await fs.writeFile(envFile,envStr);
 
-        console.log("Done.");
-        console.log(`Login to the admin control panel at http://${hostname}:6080/html/admin`);
-        console.log(`Login to remote desktop at http://${hostname}/html/desktop`);
+        console.log(`
+Linux Remote Desktop is successfully installed.
+
+All components are running as docker containers and can be controlled using docker-compose,
+from the docker compose script, located at ${root}/docker-compose.yml.
+
+You can manage the system by logging in to the admin control panel at:
+http://${hostname}:6080/html/admin
+
+Users can open remote desktop sessions at:
+http://${hostname}/html/desktop
+
+`);
 
     } catch (err) {
         console.error("Error", err);
