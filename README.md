@@ -1,6 +1,6 @@
-# Nubo Bootstrap
+# Linux Remote Desktop
 
-# What is Nubo Bootstrap
+# What is Linux Remote Desktop
 
 # Running using docker
 
