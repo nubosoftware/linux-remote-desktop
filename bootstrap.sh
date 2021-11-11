@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# run script for nubo bootstrap
+# run script for linux remote desktop bootstrap
 
 #check if docker exists
 if [ -x "$(command -v docker)" ]; then
@@ -23,7 +23,7 @@ do
         -v /etc/docker/daemon.json:/etc/docker/daemon.json \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /opt/nubo:/opt/nubo \
-        -it nubosoftware/nubo-bootstrap:latest
+        -it nubosoftware/linux-remote-desktop:latest
     i="$?"
     if [ $i -eq 2 ] 
     then 

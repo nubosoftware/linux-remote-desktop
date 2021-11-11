@@ -9,7 +9,7 @@ const os = require("os");
 const BASE_IMAGE = "nubo-ubuntu:20.04";
 
 const { program } = require('commander');
-program.version('0.0.1');
+program.version('0.8.0');
 
 program
     .option('-p, --path <path>','Root path','./');
@@ -165,22 +165,9 @@ async function main() {
     let hostname;
     let runInDocker = false;
     try {        
-        console.log(`
-
-Linux Remote Desktop
-====================
-
-This script creates a linux remote desktop system in a single server.
-It installs, configures and runs all the necessary components.
-
-`);
-
-        let a = await askYesNo('Ready to begin?', "Y");
-        if (!a) {
-            return;
-        }
+        
         root = path.resolve(options.path);
-        console.log(`Root path for linux remote desktop: ${root}`);
+        
 
         if (process.env.DOCKER_ENV) {
             runInDocker = true;
@@ -196,17 +183,40 @@ It installs, configures and runs all the necessary components.
             // ignore any error
         }
 
+        if (!prevRun.exitCode || prevRun.exitCode <= 1) {
+
+            console.log(`
+
+Linux Remote Desktop
+====================
+
+This script creates a linux remote desktop system in a single server.
+It installs, configures and runs all the necessary components.
+
+`);
+
+            let a = await askYesNo('Ready to begin?', "Y");
+            if (!a) {
+                return;
+            }
+
+            console.log(`Root path for linux remote desktop: ${root}`);
+        }
+
         // reading current configuration
         let settings = await readJSONFile('nubomanagement/conf/Settings.json');
         const dcName = settings.dcName;
 
         //console.log(`Data center name: ${dcName}`);
 
-
-        console.log("Stopping all running containers..");
+        if (!prevRun.exitCode || prevRun.exitCode <= 1) {
+            console.log("Stopping all running containers..");
+        }
         let ret = await execComposesCmd(["down"]);
 
-        console.log(`Checking mysql database..`);
+        if (!prevRun.exitCode || prevRun.exitCode <= 1) {
+            console.log(`Checking mysql database..`);
+        }
         if (! await isDirEmpty('mysql/data')) {
             let a = await askYesNo('An existing database found. Would you like to delete it and start with a new database?', "N");
             if (!a) {
