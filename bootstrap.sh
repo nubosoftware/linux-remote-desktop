@@ -11,7 +11,17 @@ else
     exit 1;
 fi
 
+if [ ! -d "/etc/docker" ] 
+then   
+    echo "Directory /etc/docker does not exists. Creating it.."
+    sudo mkdir -p /etc/docker
+fi
 
+if [ ! -d "/opt/nubo" ] 
+then   
+    echo "Directory /opt/nubo does not exists. Creating it.."
+    sudo mkdir -p /opt/nubo
+fi
 
 # run the bootstrap image in loop until we get exit code that is 0 or 1
 i="100"

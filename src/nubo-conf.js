@@ -67,7 +67,11 @@ async function isDirEmpty(dir) {
         //console.log(`files.length: ${files.length}`);
         return (files.length == 0);
     } catch (e) {
-        //console.error(e);
+        try {
+            await fs.mkdir(dirpath, { recursive: true });
+        } catch (e2) {
+
+        }
         return true;
     }
 }
