@@ -5,7 +5,7 @@ RUN apt install -y \
     curl
 
 #install node js 14.x
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt install -y nodejs
 
 #install docker-ce-cli
