@@ -17,6 +17,12 @@ then
     sudo mkdir -p /etc/docker
 fi
 
+if [ ! -f /etc/docker/daemon.json ]; then
+    echo "Creating default /etc/docker/daemon.json file."
+    echo "{ }" > /etc/docker/daemon.json
+fi
+
+
 if [ ! -d "/opt/nubo" ] 
 then   
     echo "Directory /opt/nubo does not exists. Creating it.."

@@ -388,7 +388,7 @@ It installs, configures and runs all the necessary components.
         //console.log(`res: ${JSON.stringify(ret,null,2)}`);
 
         // configure default platform
-        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into static_platforms values (1,"nubo-ps","nubo-ps");' | mysql -u root -p${mysqlPassword} nubo`]);
+        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into static_platforms (platid , ip , vmname) values (1,"nubo-ps","nubo-ps");' | mysql -u root -p${mysqlPassword} nubo`]);
         
 
         console.log(`Starting all containers...`);
