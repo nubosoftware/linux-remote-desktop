@@ -4,10 +4,20 @@ services:
     image: registry:2
     container_name: nubo-registry
     restart: always
+    environment:
+      REGISTRY_HTTP_TLS_CERTIFICATE: /cert/server.cert
+      REGISTRY_HTTP_TLS_KEY: /cert/server.key
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /cert/htpasswd
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
     volumes:
       - type: bind
         source: ./registry
         target: /var/lib/registry
+      - type: bind
+        source: ./cert
+        target: /cert
     ports:
       - "5000:5000"
   nubo-mysql:

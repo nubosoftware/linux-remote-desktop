@@ -39,7 +39,7 @@ do
         -v /etc/docker:/etc/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /opt/nubo:/opt/nubo \
-        -it nubosoftware/linux-remote-desktop:latest
+        -it linux-remote-desktop:0.8.1
     i="$?"
     if [ $i -eq 2 ] 
     then 

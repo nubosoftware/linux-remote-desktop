@@ -63,6 +63,7 @@ function randomKey(len) {
 async function isDirEmpty(dir) {
     try {
         const dirpath = path.join(root, dir);
+        await fs.mkdir(dirpath, { recursive: true });
         files = await fs.readdir(dirpath);
         //console.log(`files.length: ${files.length}`);
         return (files.length == 0);
@@ -155,7 +156,7 @@ function sleep(ms) {
 async function emptyDir(dir) {
     if (! await isDirEmpty(dir)) {
         const dirpath = path.join(root, dir);    
-        await fs.rmdir(dirpath, { recursive: true });
+        await fs.rm(dirpath, { recursive: true });
         await fs.mkdir(dirpath, { recursive: true });
     }
 }
@@ -227,7 +228,7 @@ It installs, configures and runs all the necessary components.
                 console.log("Installation process cannot run on existing database. Exiting...");
                 return;
             }
-            await fs.rmdir(path.join(root, "mysql/data"), { recursive: true });
+            await fs.rm(path.join(root, "mysql/data"), { recursive: true });
         }
 
         hostname = ( process.env.DEF_HOSTNAME ? process.env.DEF_HOSTNAME : os.hostname());
@@ -237,8 +238,44 @@ It installs, configures and runs all the necessary components.
             hostname = await question("Enter host name:",hostname);
         }
         const registryURL = `${hostname}:5000`;
+
+        // create certifications for registry
+        //openssl req   -newkey rsa:4096 -nodes -sha256 -keyout /tmp/cert/domain.key -subj "/C=NA/ST=NA/L=NA/O=VA/CN=labil.nubosoftware.com"   
+        // -addext "subjectAltName = DNS:labil.nubosoftware.com"   -x509 -days 365 -out /tmp/cert/domain.crt
+        console.log("Generating self-signed certificate..");
+        await fs.mkdir(path.join(root, "cert"), { recursive: true });
+        const certFile = path.join(root, "cert/server.cert");
+        const keyFile = path.join(root, "cert/server.key");
+        await execCmd("openssl",["req","-newkey","rsa:4096","-nodes","-sha256","-keyout",keyFile,"-subj",
+                        `/C=NA/ST=NA/L=NA/O=VA/CN=${hostname}`,"-addext",`subjectAltName = DNS:${hostname}`,"-x509","-days","3650",
+                        "-out",certFile]);
+        let certFileStr = await fs.readFile(certFile,"utf8");
         
-        let daemonJson;
+        await fs.mkdir(`/etc/docker/certs.d/${registryURL}`, { recursive: true });
+        let castr = "";        
+        try  {            
+            castr = await fs.readFile(filepath, "utf8");
+        } catch (e) {
+
+        }
+        castr = `${castr}${certFileStr}`;
+        await fs.writeFile(`/etc/docker/certs.d/${registryURL}/ca.crt`, castr);        
+
+        // generate auth password for the registry
+        const registryPassword = randomKey(20);
+        const registryUser = "registry";
+        const passObj = await execDockerCmd(["run","--rm","--entrypoint","htpasswd","httpd:2","-Bbn",registryUser,registryPassword]);
+        const htpasswd = passObj.stdout;
+        const htpasswdFile = path.join(root, "cert/htpasswd");
+        await fs.writeFile(htpasswdFile, htpasswd);
+
+
+//         docker run \
+//   --entrypoint htpasswd \
+//   httpd:2 -Bbn testuser testpassword > auth/htpasswd
+        // /etc/docker/certs.d/myregistrydomain.com:5000/ca.crt
+
+        /*let daemonJson;
         try {
             daemonJson = await readJSONFile("/etc/docker/daemon.json");
         } catch (e) {
@@ -264,13 +301,21 @@ It installs, configures and runs all the necessary components.
                 
             }
             
-        }
+        }*/
 
-        console.log(`Starting registry. Registry URL: ${registryURL}`);
+        console.log(`Pulling required images..`);
+        await execComposesCmd(["pull"]);
+
+        console.log(`Starting registry. Registry URL: ${registryURL}`);        
         ret = await execComposesCmd(["up", "-d", "nubo-registry"]);
+
+        // login to the registry
+        await execDockerCmd(['login', '-u', registryUser, '-p',registryPassword,registryURL]);
 
         // server configuration
         settings.registryURL = registryURL;
+        settings.registryUser = registryUser;
+        settings.registryPassword = registryPassword;
         settings.serverurl = `http://${hostname}/`;
         settings.controlPanelURL = `http://${hostname}:6080/`;        
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
@@ -283,8 +328,8 @@ It installs, configures and runs all the necessary components.
         ret = await execDockerCmd(["push",`${registryURL}/nubo/${BASE_IMAGE}`]);
 
 
-        // delete old data
-        await emptyDir('redis/data');
+        // delete old data        
+        await emptyDir('redis/data');        
         await emptyDir('nubomanagement/docker_apps');        
 
 
