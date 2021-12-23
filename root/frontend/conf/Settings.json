@@ -11,7 +11,17 @@
             "client": true
         },
         {
+            "address": "https://0.0.0.0",
+            "api": false,
+            "client": true
+        },
+        {
             "address": "http://0.0.0.0:6080",
+            "api": true,
+            "client": false
+        },
+        {
+            "address": "https://0.0.0.0:6443",
             "api": true,
             "client": false
         }
@@ -20,7 +30,7 @@
     "RemoteServers": {},
     "backendAuth": {
         "user": "frontend",
-        "password": "j3NgzXhRg02d6sKBIxZh"
+        "password": "none"
     },
     "NotificationGateway": {
         "smsUrl": "https://gl.nubosoftware.com/SmsNotification/sendSmsNotificationFromRemoteServer",

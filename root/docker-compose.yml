@@ -87,6 +87,9 @@ services:
       - type: bind
         source: ./frontend/conf
         target: /opt/nubomanagement-public/conf
+      - type: bind
+        source: ./cert
+        target: /opt/cert
     ports:
       - "80:80"
       - "443:443"

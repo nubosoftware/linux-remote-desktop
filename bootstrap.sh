@@ -4,7 +4,8 @@
 
 #check if docker exists
 if [ -x "$(command -v docker)" ]; then
-    
+    # pull latest linux-remote-desktop image
+    sudo docker pull nubosoftware/linux-remote-desktop:latest
 else
     echo "Docker not found. Please install Docker engine"
     exit 1;
