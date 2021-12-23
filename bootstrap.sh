@@ -4,8 +4,7 @@
 
 #check if docker exists
 if [ -x "$(command -v docker)" ]; then
-    # pull latest nubo-bootstrap image
-    sudo docker pull nubosoftware/nubo-bootstrap:latest
+    
 else
     echo "Docker not found. Please install Docker engine"
     exit 1;
