@@ -26,7 +26,7 @@
     "platformParams": {
         "concurrency": 3,
         "concurrencyDelay": 20,
-        "platformPoolSize": 0,
+        "platformPoolSize": 1,
         "explatformPoolSize": 0,
         "upperCapacityLevel": 0.5,
         "bottomCapacityLevel": 0,
