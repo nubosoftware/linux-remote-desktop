@@ -21,3 +21,14 @@ Required: Linux system with docker engine installed.
 Copy & paste the following on your terminal:
 
 > sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.8.2/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh
+
+## Live Demo
+
+Live demo is available at:
+[Linux Remote Desktop Demo](https://na02.nubosoftware.com/html/desktop/)
+
+## Screenshots
+Example of a user’s remote desktop (available in a Chrome browser)
+![Desktop](https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.8.2/desktop-screenshot.png)
+Admin control panel – App management
+![Admin control panel](https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.8.2/user-applist-screenshot.png)
