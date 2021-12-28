@@ -390,7 +390,7 @@ CREATE TABLE `data_center_configs` (
 
 LOCK TABLES `data_center_configs` WRITE;
 /*!40000 ALTER TABLE `data_center_configs` DISABLE KEYS */;
-INSERT INTO `data_center_configs` VALUES ('dc','dcInternalURL','https://lab.nubosoftware.com/'),('dc','dcURL','http://labil.nubosoftware.com:1080/'),('dc','defaultTimeZone','Etc/UTC'),('dc','internalurl','http://127.0.0.1:8080/'),('dc','nfsId','1'),('dc','platformType','docker'),('dc','platformVersionCode','300');
+INSERT INTO `data_center_configs` VALUES ('dc','dcInternalURL','http://nubo-management:8080/'),('dc','dcURL','http://labil.nubosoftware.com:1080/'),('dc','defaultTimeZone','Etc/UTC'),('dc','internalurl','http://nubo-management:8080/'),('dc','nfsId','1'),('dc','platformType','docker'),('dc','platformVersionCode','300');
 /*!40000 ALTER TABLE `data_center_configs` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -240,8 +240,6 @@ It installs, configures and runs all the necessary components.
         const registryURL = `${hostname}:5000`;
 
         // create certifications for registry
-        //openssl req   -newkey rsa:4096 -nodes -sha256 -keyout /tmp/cert/domain.key -subj "/C=NA/ST=NA/L=NA/O=VA/CN=labil.nubosoftware.com"   
-        // -addext "subjectAltName = DNS:labil.nubosoftware.com"   -x509 -days 365 -out /tmp/cert/domain.crt
         console.log("Generating self-signed certificate..");
         await fs.mkdir(path.join(root, "cert"), { recursive: true });
         const certFile = path.join(root, "cert/server.cert");
@@ -268,40 +266,6 @@ It installs, configures and runs all the necessary components.
         const htpasswd = passObj.stdout;
         const htpasswdFile = path.join(root, "cert/htpasswd");
         await fs.writeFile(htpasswdFile, htpasswd);
-
-
-//         docker run \
-//   --entrypoint htpasswd \
-//   httpd:2 -Bbn testuser testpassword > auth/htpasswd
-        // /etc/docker/certs.d/myregistrydomain.com:5000/ca.crt
-
-        /*let daemonJson;
-        try {
-            daemonJson = await readJSONFile("/etc/docker/daemon.json");
-        } catch (e) {
-            daemonJson = {};
-        }
-        if (!daemonJson["insecure-registries"]) {
-            daemonJson["insecure-registries"] = [];
-        }
-        if (daemonJson["insecure-registries"].indexOf(registryURL) == -1) {
-            //console.log(`Adding registry URL to insecure registries in /etc/docker/daemon.json`);
-            daemonJson["insecure-registries"].push(registryURL);
-            try {
-                await writeJSONFile("/etc/docker/daemon.json",daemonJson);
-                if (!runInDocker) {
-                    await execCmd("systemctl",["reload","docker"]);
-                } else {
-                    exitCode = 2;
-                    return;
-                }
-            } catch (e) {
-                console.log(`Cannot update /etc/docker/daemon.json. Error: ${e},\n You may need to re-run this script as root, or update the file manually to: ${JSON.stringify(daemonJson)}`);                
-                throw e;
-                
-            }
-            
-        }*/
 
         console.log(`Pulling required images..`);
         await execComposesCmd(["pull"]);
@@ -332,8 +296,6 @@ It installs, configures and runs all the necessary components.
         await emptyDir('redis/data');        
         await emptyDir('nubomanagement/docker_apps');        
 
-
-        //if (await isDirEmpty('mysql/data')) {
         console.log(`Creating database...`);
         await fs.mkdir(path.join(root, "mysql/data"), { recursive: true });
 
@@ -385,13 +347,13 @@ It installs, configures and runs all the necessary components.
         feConf.backendAuth.user = "frontend";
         feConf.backendAuth.password = frontEndPassword;
         await writeJSONFile("frontend/conf/Settings.json", feConf);
-        /*} else {
-            console.log(`Mysql already initiated. skip database initialization`);
-        }*/
+        
 
         // configure nfs server
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update nfs_servers set nfsip="local", sship="local" , nfspath="${path.join(root,"nfs/homes")}"' | mysql -u root -p${mysqlPassword} nubo`]);
 
+        // configure data center URL
+        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update data_center_configs set value="http://${hostname}/" where name="dcURL" ' | mysql -u root -p${mysqlPassword} nubo`]);
 
 
         // start management container with the new password
@@ -435,6 +397,11 @@ It installs, configures and runs all the necessary components.
         // configure default platform
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into static_platforms (platid , ip , vmname) values (1,"nubo-ps","nubo-ps");' | mysql -u root -p${mysqlPassword} nubo`]);
         
+        // Change the platform pool to start one platform (we need to re-read the Settings.json)
+        settings = await readJSONFile('nubomanagement/conf/Settings.json');
+        settings.platformParams.platformPoolSize = 1;
+        await writeJSONFile('nubomanagement/conf/Settings.json', settings);
+        ret = await execComposesCmd(["restart", "nubo-management"]);
 
         console.log(`Starting all containers...`);
         ret = await execComposesCmd(["up", "-d"]);

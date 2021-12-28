@@ -1,4 +1,74 @@
 module.exports = {
+    //activate desktop
+    "desktopSignupEmailSubject": "Confirm Remote Desktop Signup",
+    "desktopSignupEmailSubjectToAdmin": "Confirm Remote Desktop Signup for <%= first %> <%= last %> (<%= email %>)",
+    "desktopSignupEmailBody": `
+    Hi <%= first %> <%= last %>,
+
+    You've recently been asked to sign up for remote desktop access with the following details:
+    Email: <%= email %>
+    Browser: <%= browser %>
+    IP Address: <%= ip %>
+    
+    Please click the link below to confirm the remote desktop access:
+    <%= link %>`,
+    "desktopSignupEmailBodyHTML": `
+    <p>Hi <%= first %> <%= last %>,</p>
+
+    <p>You've recently been asked to sign up for remote desktop access with the following details:<br/>
+    Email: <%= email %><br/>
+    Browser: <%= browser %><br/>
+    IP Address: <%= ip %></p>
+    
+    <p>Please click the link below to confirm the remote desktop access:<br/>
+    <a href="<%= link %>">Confirm</a></p>`,
+    "desktopSignupReqNotifTitle": "Remote Desktop Activation Request",
+    "desktopSignupReqNotifText": "User <%= first %> <%= last %> (<%= email %>) has requested Remote Desktop activation",
+
+
+    //unlock password desktop
+    "desktopUnlockPasscodeEmailSubject": "Unlock Remote Desktop Password",
+    "desktopUnlockPasscodeEmailSubjectToAdmin": "Unlock Remote Desktop Password for <%= first %> <%= last %> (<%= email %>)",
+    "desktopUnlockPasscodeEmailBody": `
+    Hi <%= first %> <%= last %>,
+
+    Please click the link below to unlock your remote desktop password:
+    <%= link %>`,
+    "desktopUnlockPasscodeEmailBodyHTML": `
+    <p>Hi <%= first %> <%= last %>,</p>
+    
+    <p>Please click the link below to unlock your remote desktop password:<br/>
+    <a href="<%= link %>">Unlock</a></p>`,
+    "desktopUnlockPasscodeNotifTitle": "Remote Desktop Password Locked",
+    "desktopUnlockPasscodeNotifText": "Password locked for user <%= first %> <%= last %> (<%= email %>)",
+
+    //reset passcode
+    "desktopResetPasscodeEmailSubject": "Reset Remote Desktop Password",
+    "desktopResetPasscodeEmailSubjectToAdmin": "Reset Remote Desktop Password for <%= first %> <%= last %> (<%= email %>)",
+    "desktopResetPasscodeEmailBody": `
+    Hi <%= first %> <%= last %>,
+
+    You've recently been asked to reset your remote desktop password with the following details:
+    Email: <%= email %>
+    Browser: <%= browser %>
+    IP Address: <%= ip %>
+    
+    Please click the link below to set a new password:
+    <%= link %>`,
+    "desktopResetPasscodeEmailBodyHTML": `
+    <p>Hi <%= first %> <%= last %>,</p>
+
+    <p>You've recently been asked to reset your remote desktop password with the following details:<br/>
+    Email: <%= email %><br/>
+    Browser: <%= browser %><br/>
+    IP Address: <%= ip %></p>
+    
+    <p>Please click the link below to set a new password:<br/>
+    <a href="<%= link %>">Reset Password</a></p>`,
+    "desktopResetPasscodeNotifTitle": "Remote Desktop Password Reset Request",
+    "desktopResetPasscodeNotifText": "User <%= first %> <%= last %> (<%= email %>) has requested a password reset",
+
+
     //activate
     "createPlayerEmailSubject": "Create a Player",
     "createPlayerEmailSubjectToAdmin": "Create a Player for %s %s",
