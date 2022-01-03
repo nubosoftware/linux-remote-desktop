@@ -6,7 +6,7 @@
     "authValidatorPermittedMode": false,
     "serverurl": "http://myserver.com/",
     "internalurl": "http://nubo-management:8080/",
-    "nfsserver": "user@127.0.0.1",    
+    "nfsserver": "local",    
     "nfshomefolder": "/srv/nfs/homes/",
     "sessionTimeout": 600,
     "sshPrivateKey": ".ssh/id_rsa",

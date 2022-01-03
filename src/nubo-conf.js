@@ -264,7 +264,7 @@ It installs, configures and runs all the necessary components.
         const registryUser = "registry";
         const passObj = await execDockerCmd(["run","--rm","--entrypoint","htpasswd","httpd:2","-Bbn",registryUser,registryPassword]);
         const htpasswd = passObj.stdout;
-        const htpasswdFile = path.join(root, "cert/htpasswd");
+        const htpasswdFile = path.join(root, "cert/htpasswd");        
         await fs.writeFile(htpasswdFile, htpasswd);
 
         console.log(`Pulling required images..`);
@@ -281,7 +281,8 @@ It installs, configures and runs all the necessary components.
         settings.registryUser = registryUser;
         settings.registryPassword = registryPassword;
         settings.serverurl = `http://${hostname}/`;
-        settings.controlPanelURL = `http://${hostname}:6080/`;        
+        settings.controlPanelURL = `http://${hostname}:6080/`;
+        settings.nfshomefolder = path.join(root,"nfs/homes");        
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
 
 
