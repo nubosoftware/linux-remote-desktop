@@ -2,6 +2,29 @@
 
 # run script for linux remote desktop bootstrap
 
+# read command line parameters
+TAG=latest
+HOME=/opt/nubo
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -t|--tag)
+      TAG="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -h|--home)
+      HOME="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    *)
+      echo "Unknown option $1"
+      echo "Usage: bootstrap.sh -t [TAG] -h [Home Folder]"
+      exit 1
+      ;;
+  esac
+done
+
 # sudo wrapper
 SUDO=$(command -v sudo)
 if [ -z "$SUDO" ]; then
@@ -18,8 +41,8 @@ fi
 
 #check if docker exists
 if [ -x "$(command -v docker)" ]; then
-    # pull latest linux-remote-desktop image
-    $SUDO docker pull nubosoftware/linux-remote-desktop:latest
+    # pull linux-remote-desktop image
+    $SUDO docker pull nubosoftware/linux-remote-desktop:$TAG
 else
     echo "Docker not found. Please install Docker engine"
     exit 1;
@@ -37,10 +60,10 @@ if [ ! -f /etc/docker/daemon.json ]; then
 fi
 
 
-if [ ! -d "/opt/nubo" ] 
+if [ ! -d "$HOME" ] 
 then   
-    echo "Directory /opt/nubo does not exists. Creating it.."
-    $SUDO mkdir -p /opt/nubo
+    echo "Directory $HOME does not exists. Creating it.."
+    $SUDO mkdir -p "$HOME"
 fi
 
 # run the bootstrap image in loop until we get exit code that is 0 or 1
@@ -52,8 +75,8 @@ do
         -e DOCKER_ENV='YES' \
         -v /etc/docker:/etc/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v /opt/nubo:/opt/nubo \
-        -it nubosoftware/linux-remote-desktop:latest
+        -v $HOME:$HOME \
+        -it nubosoftware/linux-remote-desktop:$TAG node src/nubo-conf.js -p $HOME
     i="$?"
     if [ $i -eq 2 ] 
     then 

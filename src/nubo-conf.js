@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const execFile = require('child_process').execFile;
 const os = require("os");
 
-const BASE_IMAGE = "nubo-ubuntu:20.04";
+const BASE_IMAGE = 'nubo-ubuntu:20.04';
 
 const { program } = require('commander');
 program.version('0.8.0');
@@ -280,6 +280,7 @@ It installs, configures and runs all the necessary components.
         settings.registryURL = registryURL;
         settings.registryUser = registryUser;
         settings.registryPassword = registryPassword;
+        settings.baseImage = `${registryURL}/nubo/${BASE_IMAGE}`
         settings.serverurl = `http://${hostname}/`;
         settings.controlPanelURL = `http://${hostname}:6080/`;
         settings.nfshomefolder = path.join(root,"nfs/homes");        
@@ -289,8 +290,8 @@ It installs, configures and runs all the necessary components.
         console.log(`Pulling base image and pushing it to local registry...`);
         // upload base image to registry
         ret = await execDockerCmd(["pull", `nubosoftware/${BASE_IMAGE}`]);
-        ret = await execDockerCmd(["tag", `nubosoftware/${BASE_IMAGE}`,`${registryURL}/nubo/${BASE_IMAGE}`]);
-        ret = await execDockerCmd(["push",`${registryURL}/nubo/${BASE_IMAGE}`]);
+        ret = await execDockerCmd(["tag", `nubosoftware/${BASE_IMAGE}`,settings.baseImage]);
+        ret = await execDockerCmd(["push",settings.baseImage]);
 
 
         // delete old data        
@@ -404,9 +405,6 @@ It installs, configures and runs all the necessary components.
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
         ret = await execComposesCmd(["restart", "nubo-management"]);
 
-        console.log(`Starting all containers...`);
-        ret = await execComposesCmd(["up", "-d"]);
-
 
         // create .env file to help user to use docker compose command
         const envStr = `
@@ -428,6 +426,9 @@ Users can open remote desktop sessions at:
 http://${hostname}/html/desktop
 
 `);
+
+    console.log(`Starting all containers...`);
+    ret = await execComposesCmd(["up", "-d"]);
 
     } catch (err) {
         console.error("Error", err);
