@@ -24,8 +24,14 @@ Copy & paste the following on your terminal:
 
 ## Live Demo
 
-Live demo is available at:
+Live demo of end user's client is available at:
 [Linux Remote Desktop Demo](https://na02.nubosoftware.com/html/desktop/)
+
+To get a live demo of the Admin Control Panel, please email us at: [support@nubosoftware.com](mailto:support@nubosoftware.com)
+
+
+## Building and Running from Source Code
+Information is available at [docs folder](https://github.com/nubosoftware/linux-remote-desktop/blob/main/docs/build-from-source.md)
 
 ## Screenshots
 Example of a user’s remote desktop (available in a Chrome browser)
