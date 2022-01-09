@@ -97,17 +97,23 @@ services:
       - "6443:6443"
     networks:
       - net_fe
-      - net_guac
     depends_on:
       - nubo-management
-
-  nubo-guac:
-    image: guacamole/guacd
-    container_name: nubo-guac
-    hostname: nubo-guac
+    
+  nubo-gateway:
+    image: nubosoftware/gateway
+    container_name: nubo-gateway
+    hostname: nubo-gateway
     restart: always
+    volumes:
+    - type: bind
+      source: ./gateway/conf
+      target: /opt/nubogateway/conf
+    - type: bind
+      source: ./cert
+      target: /opt/cert
     networks:
-      - net_guac
+      - net_fe
       - net_sess
   nubo-ps:
     image: nubosoftware/nuboplatformserver
@@ -135,7 +141,5 @@ networks:
    name: net_ps
   net_fe:
     name: net_fe
-  net_guac:
-    name: net_guac
   net_sess:
     name: net_sess

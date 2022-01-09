@@ -1,0 +1,16 @@
+{ 
+ "guacPort": "4822",
+ "base_index": "1",
+ "internal_ip": "nubo-gateway",
+ "external_ip": "nubo-gateway", 
+ "redisWrapperUrl": "http://nubo-management:8080",
+ "backendAuthUser" : "frontend",
+ "backendAuthPassword" : "none",
+ "platformControlPort": false,
+ "platformPort": false,
+ "playerPort": false,
+ "sslPlayerPort": false,
+ "platformRTPPort": false,
+ "playerRTPPort": false
+}
+

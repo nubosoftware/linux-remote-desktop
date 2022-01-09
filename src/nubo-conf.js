@@ -247,6 +247,8 @@ It installs, configures and runs all the necessary components.
         await execCmd("openssl",["req","-newkey","rsa:4096","-nodes","-sha256","-keyout",keyFile,"-subj",
                         `/C=NA/ST=NA/L=NA/O=VA/CN=${hostname}`,"-addext",`subjectAltName = DNS:${hostname}`,"-x509","-days","3650",
                         "-out",certFile]);
+        await fs.chown(keyFile, 1000, 1000);
+
         let certFileStr = await fs.readFile(certFile,"utf8");
         
         await fs.mkdir(`/etc/docker/certs.d/${registryURL}`, { recursive: true });
@@ -345,10 +347,17 @@ It installs, configures and runs all the necessary components.
         frontEndPassword = randomKey(20);
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into allowed_front_end_servers values ("${dcName}","frontend","${frontEndPassword}")' | mysql -u root -p${mysqlPassword} nubo`]);
 
+        // update frontend config file
         let feConf = await readJSONFile("frontend/conf/Settings.json");
         feConf.backendAuth.user = "frontend";
         feConf.backendAuth.password = frontEndPassword;
         await writeJSONFile("frontend/conf/Settings.json", feConf);
+
+        // update gateway config file
+        let gwConf = await readJSONFile("gateway/conf/Settings.json");
+        gwConf.backendAuthUser = "frontend";
+        gwConf.backendAuthPassword = frontEndPassword;
+        await writeJSONFile("gateway/conf/Settings.json", gwConf);
         
 
         // configure nfs server

@@ -48,5 +48,6 @@
     "platformCred": false,    
     "http_proxy": false,        
     "publicServerCredentials": {},    
-    "autoActivationOnce": true
+    "autoActivationOnce": true,
+    "guacAddr": "nubo-gateway"
 }
