@@ -14,13 +14,15 @@ The project is based on many open source projects, such as:
 
 ### Create your first linux remote desktop system in a single server.
 
-#### Running the bootstrap script using docker.
+Please follow the detailed [Getting Started Guide](https://github.com/nubosoftware/linux-remote-desktop/blob/main/docs/getting-started-guide.md) which provides step-by-step instructions on how to install and configure a full working VDI system on a Linux server.
+
+#### For a sneak peek - running the bootstrap script using docker.
 
 Required: Linux system with docker engine installed.
 
 Copy & paste the following on your terminal:
 
-> sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh
+`sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh`
 
 ## Live Demo
 
