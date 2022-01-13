@@ -22,7 +22,7 @@ Required: Linux system with docker engine installed.
 
 Copy & paste the following on your terminal:
 
-`sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh`
+`sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9.1/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh`
 
 ## Live Demo
 
