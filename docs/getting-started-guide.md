@@ -18,7 +18,7 @@ The bootstrap script installs all components in a single server. It first pulls 
 
 1. Run the command to download and start the bootstrap script:
 
-    `sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh`
+    `sudo curl -L https://github.com/nubosoftware/linux-remote-desktop/releases/download/0.9.1/bootstrap.sh -o /usr/local/bin/nubo-bootstrap.sh ; sudo chmod +x /usr/local/bin/nubo-bootstrap.sh ; sudo /usr/local/bin/nubo-bootstrap.sh`
 
 The bootstrap script will install all configuration files in the /opt/nubo folder. You can use a different folder by adding -h <folder> in the command line:
 
