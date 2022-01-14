@@ -1,5 +1,17 @@
 version: '3.5'
 services:
+  nubo-rsyslog:
+    image: nubosoftware/nubo-rsyslog
+    container_name: nubo-rsyslog
+    hostname: nubo-rsyslog
+    restart: always
+    volumes:
+      - type: bind
+        source: ./log
+        target: /opt/nubo-rsyslog/log
+    networks:      
+      - net_fe
+      - net_ps
   nubo-registry:
     image: registry:2
     container_name: nubo-registry
@@ -40,17 +52,13 @@ services:
     image: redis
     container_name: nubo-redis
     hostname: nubo-redis
-    restart: always
-    volumes:
-      - type: bind
-        source: ./redis/data
-        target: /data
-    command: redis-server --save 60 1 --loglevel warning
+    restart: always    
+    command: redis-server
     networks:
       - net_db    
 
   nubo-management:
-    image: nubosoftware/nubomanagement
+    image: nubosoftware/nubomanagement:test
     container_name: nubo-management
     hostname: nubo-management
     restart: always
@@ -70,6 +78,9 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+      - type: bind
+        source: ./common/etc/rsyslog.d
+        target: /etc/rsyslog.d
     networks:
       - net_fe
       - net_db
@@ -77,6 +88,7 @@ services:
     depends_on:
       - nubo-mysql
       - nubo-redis
+      - nubo-rsyslog
 
   nubo-frontend:
     image: nubosoftware/nubofrontend
@@ -90,6 +102,9 @@ services:
       - type: bind
         source: ./cert
         target: /opt/cert
+      - type: bind
+        source: ./common/etc/rsyslog.d
+        target: /etc/rsyslog.d
     ports:
       - "80:80"
       - "443:443"
@@ -112,9 +127,14 @@ services:
     - type: bind
       source: ./cert
       target: /opt/cert
+    - type: bind
+      source: ./common/etc/rsyslog.d
+      target: /etc/rsyslog.d
     networks:
       - net_fe
       - net_sess
+    depends_on:
+      - nubo-management
   nubo-ps:
     image: nubosoftware/nuboplatformserver
     container_name: nubo-ps
@@ -132,7 +152,11 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
-  
+      - type: bind
+        source: ./common/etc/rsyslog.d
+        target: /etc/rsyslog.d
+    depends_on:
+      - nubo-rsyslog
 
 networks:
   net_db:
