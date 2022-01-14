@@ -58,7 +58,7 @@ services:
       - net_db    
 
   nubo-management:
-    image: nubosoftware/nubomanagement:test
+    image: nubosoftware/nubomanagement
     container_name: nubo-management
     hostname: nubo-management
     restart: always
