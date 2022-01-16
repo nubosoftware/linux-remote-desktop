@@ -1,0 +1,11 @@
+{
+    "db": {
+        "dbname": "nuboLogs", 
+        "user": "root",
+        "password": "none",
+        "host": "nubo-mysql",
+        "port": 3306,
+        "sequelizeLogs": false
+    },
+    "insertAllToDB": false
+}

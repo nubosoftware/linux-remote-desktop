@@ -9,9 +9,15 @@ services:
       - type: bind
         source: ./log
         target: /opt/nubo-rsyslog/log
+      - type: bind
+        source: ./nubo-rsyslog/conf
+        target: /opt/nubo-rsyslog/conf
     networks:      
       - net_fe
       - net_ps
+      - net_db
+    depends_on:
+      - nubo-mysql
   nubo-registry:
     image: registry:2
     container_name: nubo-registry

@@ -298,7 +298,10 @@ It installs, configures and runs all the necessary components.
 
         // delete old data        
         await emptyDir('redis/data');        
-        await emptyDir('nubomanagement/docker_apps');        
+        await emptyDir('nubomanagement/docker_apps');
+
+        // create log folder
+        await fs.mkdir(path.join(root, "log"), { recursive: true });        
 
         console.log(`Creating database...`);
         await fs.mkdir(path.join(root, "mysql/data"), { recursive: true });
@@ -315,6 +318,11 @@ It installs, configures and runs all the necessary components.
         let sconf = await readJSONFile('nubomanagement/conf/sysconf');
         sconf.dbConf.password = mysqlPassword;
         await writeJSONFile('nubomanagement/conf/sysconf', sconf);
+
+        // write the myql password in the nubo-rsyslog configuration
+        let syslogConf = await readJSONFile('nubo-rsyslog/conf/Settings.json');
+        syslogConf.db.password = mysqlPassword;
+        await writeJSONFile('nubo-rsyslog/conf/Settings.json', syslogConf);
 
         // copy the start mysql schema to the container
         //ret = await execDockerCmd(["cp", "scripts/nubo_start_db.sql", `nubo-mysql:/tmp`]);
