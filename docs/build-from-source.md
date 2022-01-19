@@ -23,8 +23,22 @@ The frontend component:
 * Hosts the Vue-based client modules: nubo-admin (which is the admin's control panel client) and nubo-client-desktop (which is the end user's desktop client).
 
 ### Platform Server
-Github's project: [Frontend](https://github.com/nubosoftware/platform_server).
+Github's project: [Platform Server](https://github.com/nubosoftware/platform_server).
 The platform server:
 * Manages the users' containers in each server.
 * Runs in each server and gets commands from the management component regarding users logging in or out, and then starts or stops the containers using the parameters recieved from the management component.
 * Sends health information and performance statistics to the management server.
+
+### Gateway
+Github's project: [Gateway](https://github.com/nubosoftware/gateway).
+The gateway service:
+* Runs Guacamole proxy that converts traffic from Gucamole web clients to RDP.
+* Mutiple services can be added for performance. The services independently register themselves on the management service, so it can send traffic through them.
+
+### RSyslog
+Github's project: [RSyslog](https://github.com/nubosoftware/nubo-rsyslog).
+The RSyslog component:
+* A simple Syslog-based server.
+* Designed to gather logs from all other services, so the admin has one single point from where to read all logs.
+* Important log events are added to the database, so they will be available on the Admin Control Panel.
+
