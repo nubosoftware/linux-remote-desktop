@@ -53,7 +53,7 @@ b04b6eee5d3f   nubosoftware/gateway              "/usr/bin/docker-ent…"   20 s
 753be7ae0dad   redis                             "docker-entrypoint.s…"   20 seconds ago   Up 17 seconds                      6379/tcp                                                                                                                                                         nubo-redis
 4854a2dd3ef0   nubosoftware/nuboplatformserver   "/usr/bin/docker-ent…"   20 seconds ago   Up 17 seconds                      3333-3334/tcp                                                                                                                                                    nubo-ps
 ```
-You will notice that 7 containers are running in parallel. Each container contains a different service that allows the full VDI system to work properly. In this example, we are running all services in one server. However, you can later install some services in different servers and even use multiple instances for redundancy and performance.
+You will notice that 8 containers are running in parallel. Each container contains a different service that allows the full VDI system to work properly. In this example, we are running all services in one server. However, you can later install some services in different servers and even use multiple instances for redundancy and performance.
 
 8. In the installation folder (i.e. /opt/nubo ), you will find a `docker-compose.yml` file. This file controls the running environment using the [Docker Compose](https://docs.docker.com/compose/) tool.  For example, you can bring down all the resources by `cd` into that folder and run `docker-compose down` and bring all resources up again by running `docker-compose up -d`.
 
@@ -72,6 +72,8 @@ You will notice that 7 containers are running in parallel. Each container contai
     },
 ```
 After the change, you may need to restart the nubo-management container. You can do that by running the following command from the installation folder: `docker-compose restart nubo-management`
+ 
+11. All logs from all components are sent into a container named 'nubo-rsyslog'. You can read the logs by running the following command: `docker logs nubo-rsyslog`
 
 ## B. Admin Control Panel
 
