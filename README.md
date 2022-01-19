@@ -1,7 +1,8 @@
 # Linux Remote Desktop
+## VDI that's based on Linux Containers
 
-This project creates a secure, open source, multi-tenant environment for remote work.
-Users in your organization can access a remote Linux OS based workspace, run applications, as well as access other important resources. The remote environment is based on a docker container, is efficient and scalable, and can be deployed to an unlimited number of users. A web admin control panel is available to allow admins to control the organization's environment.
+This project creates a secure, open source, multi-tenant VDI environment for remote work.
+Users in your organization can access a remote Linux OS based desktop, run applications, as well as access other important resources. The remote environment is based on a docker container, is efficient and scalable, and can be deployed to an unlimited number of users. A web admin control panel is available to allow admins to control the organization's environment.
 
 The project is based on many open source projects, such as:
  - [xrdp](https://github.com/neutrinolabs/xrdp) - an open source RDP server
@@ -12,7 +13,7 @@ The project is based on many open source projects, such as:
  
 ## Getting Started
 
-### Create your first linux remote desktop system in a single server.
+### Create your [first linux remote desktop system in a single server](https://github.com/nubosoftware/linux-remote-desktop/blob/main/docs/getting-started-guide.md).
 
 Please follow the detailed [Getting Started Guide](https://github.com/nubosoftware/linux-remote-desktop/blob/main/docs/getting-started-guide.md) which provides step-by-step instructions on how to install and configure a full working VDI system on a Linux server.
 
