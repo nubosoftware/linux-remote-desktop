@@ -6,7 +6,9 @@ A Docker Compose file (located in the root folder) is used to configure the cont
 After building the docker images, you can copy the root folder to the target server(s), configure the docker-compose.yml file to use the built images, and start all containers by entering:
 `docker-compose up -d`
 
-## Main Components
+## Components
+
+Please follow the different components for the build instructions on their respective Github page . The instructions for each component creates a docker image that can be configured in the Docker Compose file.
 
 ### Management
 Github's project: [Management](https://github.com/nubosoftware/nubomanagement).
