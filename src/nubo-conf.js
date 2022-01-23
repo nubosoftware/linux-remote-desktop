@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const execFile = require('child_process').execFile;
 const os = require("os");
+const yaml = require('js-yaml');
 
 const BASE_IMAGE = 'nubo-ubuntu:20.04';
 
@@ -90,6 +91,19 @@ async function writeJSONFile(file, obj) {
     await fs.writeFile(filepath, str);
 }
 
+async function readYamlFile(file) {
+    const filepath = (file.startsWith("/") ? file : path.join(root, file));
+    const str = await fs.readFile(filepath, "utf8");
+    const obj = yaml.load(str);
+    return obj;
+}
+
+async function writeYamlFile(file, obj) {
+    const filepath = (file.startsWith("/") ? file : path.join(root, file));
+    const str = yaml.dump(obj);
+    await fs.writeFile(filepath, str);
+}
+
 function execComposesCmd(params, env) {
     return new Promise((resolve, reject) => {
         if (!env) env = {};
@@ -170,10 +184,9 @@ async function main() {
     let hostname;
     let runInDocker = false;
     try {        
-        
+                
         root = path.resolve(options.path);
-        
-
+                
         if (process.env.DOCKER_ENV) {
             runInDocker = true;
         }
@@ -366,14 +379,38 @@ It installs, configures and runs all the necessary components.
         gwConf.backendAuthUser = "frontend";
         gwConf.backendAuthPassword = frontEndPassword;
         await writeJSONFile("gateway/conf/Settings.json", gwConf);
-        
 
+        // update platform server config file
+        let psConf = await readJSONFile("platform_server/conf/Settings.json");
+        psConf.registerParams.user = "frontend";
+        psConf.registerParams.password = frontEndPassword;
+        await writeJSONFile("platform_server/conf/Settings.json", psConf);
+        
+        const homesPath = path.join(root,"nfs/homes");
         // configure nfs server
-        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update nfs_servers set nfsip="local", sship="local" , nfspath="${path.join(root,"nfs/homes")}"' | mysql -u root -p${mysqlPassword} nubo`]);
+        ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update nfs_servers set nfsip="local", sship="local" , nfspath="${homesPath}"' | mysql -u root -p${mysqlPassword} nubo`]);
 
         // configure data center URL
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update data_center_configs set value="http://${hostname}/" where name="dcURL" ' | mysql -u root -p${mysqlPassword} nubo`]);
 
+        // update docker-compose file to include the selected path in the nfs binds
+        let comp = await readYamlFile("docker-compose.yml")
+        //console.log(`YAML to JS: ${JSON.stringify(comp,null,2)}`);
+        let mvols = comp.services['nubo-management'].volumes;
+        for (let i=0; i<mvols.length;i++) {
+            if (mvols[i].source == "/opt/nubo/nfs/homes") {
+                mvols[i].source = homesPath;
+                mvols[i].target = homesPath;
+            }
+        }
+        let pvols = comp.services['nubo-ps'].volumes;
+        for (let i=0; i<pvols.length;i++) {
+            if (pvols[i].source == "/opt/nubo/nfs/homes") {
+                pvols[i].source = homesPath;
+                pvols[i].target = homesPath;
+            }
+        }
+        await writeYamlFile("docker-compose.yml",comp);        
 
         // start management container with the new password
         ret = await execComposesCmd(["up", "-d", "nubo-management"]);

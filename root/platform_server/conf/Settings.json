@@ -2,5 +2,10 @@
   "listenAddresses": [
     "http://:3333",
     "https://:3334"
-  ]
+  ],
+  "registerParams": {
+    "mgmtURL": "http://nubo-management:8080",
+    "user": "frontend",
+    "password": "none"
+  }
 }
