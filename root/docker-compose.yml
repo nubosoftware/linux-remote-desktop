@@ -12,6 +12,13 @@ services:
       - type: bind
         source: ./nubo-rsyslog/conf
         target: /opt/nubo-rsyslog/conf
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
+    expose:
+      - "5514/udp"
     networks:      
       - net_fe
       - net_ps
@@ -22,6 +29,11 @@ services:
     image: registry:2
     container_name: nubo-registry
     restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
     environment:
       REGISTRY_HTTP_TLS_CERTIFICATE: /cert/server.cert
       REGISTRY_HTTP_TLS_KEY: /cert/server.key
@@ -43,6 +55,11 @@ services:
     container_name: nubo-mysql
     hostname: nubo-mysql
     restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
@@ -58,7 +75,12 @@ services:
     image: redis
     container_name: nubo-redis
     hostname: nubo-redis
-    restart: always    
+    restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
     command: redis-server
     networks:
       - net_db    
@@ -68,6 +90,11 @@ services:
     container_name: nubo-management
     hostname: nubo-management
     restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
     volumes:
       - type: bind
         source: ./nubomanagement/conf
@@ -79,14 +106,14 @@ services:
         source: ./nubomanagement/docker_apps
         target: /opt/nubomanagement/docker_apps
       - type: bind
-        source: ${ROOT_DIR}/nfs/homes
-        target: ${ROOT_DIR}/nfs/homes
+        source: /opt/nubo/nfs/homes
+        target: /opt/nubo/nfs/homes
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
       - type: bind
         source: ./common/etc/rsyslog.d
-        target: /etc/rsyslog.d
+        target: /etc/rsyslog.d    
     networks:
       - net_fe
       - net_db
@@ -101,6 +128,8 @@ services:
     container_name: nubo-frontend
     hostname: nubo-frontend
     restart: always
+    deploy:
+      mode: global
     volumes:
       - type: bind
         source: ./frontend/conf
@@ -126,6 +155,8 @@ services:
     container_name: nubo-gateway
     hostname: nubo-gateway
     restart: always
+    deploy:
+      mode: global
     volumes:
     - type: bind
       source: ./gateway/conf
@@ -146,15 +177,22 @@ services:
     container_name: nubo-ps
     hostname: nubo-ps
     restart: always
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role!=manager"      
     networks:
       - net_ps
+    expose:
+      - "3334"    
     volumes:
       - type: bind
-        source: ${ROOT_DIR}/platform_server/conf
+        source: ./platform_server/conf
         target: /opt/platform_server/conf
       - type: bind
-        source: ${ROOT_DIR}/nfs/homes
-        target: ${ROOT_DIR}/nfs/homes
+        source: /opt/nubo/nfs/homes
+        target: /opt/nubo/nfs/homes
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
@@ -173,3 +211,4 @@ networks:
     name: net_fe
   net_sess:
     name: net_sess
+    attachable: true

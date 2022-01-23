@@ -1,7 +1,7 @@
 { 
  "guacPort": "4822",
- "base_index": "1",
- "internal_ip": "nubo-gateway",
+ "base_index": "0",
+ "internal_ip": "auto",
  "external_ip": "nubo-gateway", 
  "redisWrapperUrl": "http://nubo-management:8080",
  "backendAuthUser" : "frontend",
