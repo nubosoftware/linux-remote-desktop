@@ -33,7 +33,7 @@ fi
 VERTAG="$VER-$build_id"
 echo "Building image $PRODUCT:$VERTAG"
 
-docker build . -t $PRODUCT:$VERTAG --build-arg BUILD_VER=$VERTAG
+docker build . -t $PRODUCT:$VERTAG --build-arg BUILD_VER=$VERTAG --no-cache --pull
 
 echo "Publish to docker hub"
 docker tag $PRODUCT:$VERTAG nubosoftware/$PRODUCT:$VERTAG
