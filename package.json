@@ -1,6 +1,6 @@
 {
   "name": "linux-remote-desktop",
-  "version": "0.9.3",
+  "version": "3.2",
   "main": "src/nubo-conf.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,6 +10,7 @@
   "description": "",
   "dependencies": {
     "commander": "^8.3.0",
+    "ini": "^3.0.0",
     "js-yaml": "^4.1.0"
   }
 }

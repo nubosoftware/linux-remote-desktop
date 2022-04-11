@@ -1,7 +1,9 @@
 FROM ubuntu:20.04
+ARG BUILD_VER=3.2
 RUN apt-get -y update
 # install linux packages
 RUN apt install -y \
+    rsync \
     curl
 
 #install node js 14.x

@@ -12,7 +12,7 @@ while [[ $# -gt 0 ]]; do
       ARGS+=("$2")
       shift # past argument
       shift # past value
-      ;;    
+      ;;
     *)
       ARGS+=("$1") # save arg
       shift # past argument
@@ -22,6 +22,8 @@ done
 
 set -- "${ARGS[@]}" # restore parameters
 
-cp -TR /opt/nubo-bootstrap/ $ROOTPATH/
+rsync -a --progress --ignore-existing /opt/nubo-bootstrap/ $ROOTPATH/
+chown -R 1000:1000 $ROOTPATH/log
+
 cd /opt/nubo-conf
 exec "$@"

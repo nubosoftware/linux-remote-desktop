@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   nubo-rsyslog:
-    image: nubosoftware/nubo-rsyslog
+    image: nubosoftware/nubo-rsyslog:${RSYSLOG_TAG}
     container_name: nubo-rsyslog
     hostname: nubo-rsyslog
     restart: always
@@ -19,7 +19,7 @@ services:
           - "node.role==manager"
     expose:
       - "5514/udp"
-    networks:      
+    networks:
       - net_fe
       - net_ps
       - net_db
@@ -51,7 +51,7 @@ services:
     ports:
       - "5000:5000"
   nubo-mysql:
-    image: ubuntu/mysql
+    image: ubuntu/mysql:${MYSQL_TAG}
     container_name: nubo-mysql
     hostname: nubo-mysql
     restart: always
@@ -72,7 +72,7 @@ services:
     networks:
       - net_db
   nubo-redis:
-    image: redis
+    image: redis:${REDIS_TAG}
     container_name: nubo-redis
     hostname: nubo-redis
     restart: always
@@ -83,10 +83,10 @@ services:
           - "node.role==manager"
     command: redis-server
     networks:
-      - net_db    
+      - net_db
 
   nubo-management:
-    image: nubosoftware/nubomanagement
+    image: nubosoftware/nubomanagement:${MANAGEMENT_TAG}
     container_name: nubo-management
     hostname: nubo-management
     restart: always
@@ -113,7 +113,7 @@ services:
         target: /var/run/docker.sock
       - type: bind
         source: ./common/etc/rsyslog.d
-        target: /etc/rsyslog.d    
+        target: /etc/rsyslog.d
     networks:
       - net_fe
       - net_db
@@ -124,7 +124,7 @@ services:
       - nubo-rsyslog
 
   nubo-frontend:
-    image: nubosoftware/nubofrontend
+    image: nubosoftware/nubofrontend:${FRONTEND_TAG}
     container_name: nubo-frontend
     hostname: nubo-frontend
     restart: always
@@ -149,9 +149,9 @@ services:
       - net_fe
     depends_on:
       - nubo-management
-    
+
   nubo-gateway:
-    image: nubosoftware/gateway
+    image: nubosoftware/gateway:${GATEWAY_TAG}
     container_name: nubo-gateway
     hostname: nubo-gateway
     restart: always
@@ -173,7 +173,7 @@ services:
     depends_on:
       - nubo-management
   nubo-ps:
-    image: nubosoftware/nuboplatformserver
+    image: nubosoftware/nuboplatformserver:${PS_TAG}
     container_name: nubo-ps
     hostname: nubo-ps
     restart: always
@@ -181,11 +181,11 @@ services:
       mode: global
       placement:
         constraints:
-          - "node.role!=manager"      
+          - "node.role!=manager"
     networks:
       - net_ps
     expose:
-      - "3334"    
+      - "3334"
     volumes:
       - type: bind
         source: ./platform_server/conf

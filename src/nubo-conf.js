@@ -6,11 +6,13 @@ const crypto = require('crypto');
 const execFile = require('child_process').execFile;
 const os = require("os");
 const yaml = require('js-yaml');
+const ini = require('ini');
 
 const BASE_IMAGE = 'nubo-ubuntu:20.04';
+const VERION_TAG = '3.2';
 
 const { program } = require('commander');
-program.version('0.8.0');
+program.version('0.9');
 
 program
     .option('-p, --path <path>','Root path','./');
@@ -104,6 +106,24 @@ async function writeYamlFile(file, obj) {
     await fs.writeFile(filepath, str);
 }
 
+async function readINIFile(file) {
+    const filepath = (file.startsWith("/") ? file : path.join(root, file));
+    let str = "";
+    try {
+        const str = await fs.readFile(filepath, "utf8");
+    } catch (err) {
+        // ignore file not found errors - return empty ini file
+    }
+    const obj = ini.decode(str);
+    return obj;
+}
+
+async function writeINIFile(file, obj) {
+    const filepath = (file.startsWith("/") ? file : path.join(root, file));
+    const str = ini.encode(obj);
+    await fs.writeFile(filepath, str);
+}
+
 function execComposesCmd(params, env) {
     return new Promise((resolve, reject) => {
         if (!env) env = {};
@@ -169,7 +189,7 @@ function sleep(ms) {
 
 async function emptyDir(dir) {
     if (! await isDirEmpty(dir)) {
-        const dirpath = path.join(root, dir);    
+        const dirpath = path.join(root, dir);
         await fs.rm(dirpath, { recursive: true });
         await fs.mkdir(dirpath, { recursive: true });
     }
@@ -183,10 +203,10 @@ async function main() {
     let exitCode = 0;
     let hostname;
     let runInDocker = false;
-    try {        
-                
+    try {
+
         root = path.resolve(options.path);
-                
+
         if (process.env.DOCKER_ENV) {
             runInDocker = true;
         }
@@ -224,6 +244,19 @@ It installs, configures and runs all the necessary components.
         // reading current configuration
         let settings = await readJSONFile('nubomanagement/conf/Settings.json');
         const dcName = settings.dcName;
+
+        // prepare default .env file for docker-compose
+        let dockerEnv = await readINIFile(".env");
+        const imagesTags = ['RSYSLOG_TAG','MANAGEMENT_TAG','FRONTEND_TAG','GATEWAY_TAG','PS_TAG'];
+        for (const imageTag of imagesTags) {
+            if (!dockerEnv[imageTag]) {
+                dockerEnv[imageTag] = VERION_TAG;
+            }
+        }
+        dockerEnv['MYSQL_TAG'] = "latest";
+        dockerEnv['REDIS_TAG'] = "latest";
+        dockerEnv['ROOT_DIR'] = root;
+        await writeINIFile(".env",dockerEnv);
 
         //console.log(`Data center name: ${dcName}`);
 
@@ -263,29 +296,29 @@ It installs, configures and runs all the necessary components.
         await fs.chown(keyFile, 1000, 1000);
 
         let certFileStr = await fs.readFile(certFile,"utf8");
-        
+
         await fs.mkdir(`/etc/docker/certs.d/${registryURL}`, { recursive: true });
-        let castr = "";        
-        try  {            
+        let castr = "";
+        try  {
             castr = await fs.readFile(filepath, "utf8");
         } catch (e) {
 
         }
         castr = `${castr}${certFileStr}`;
-        await fs.writeFile(`/etc/docker/certs.d/${registryURL}/ca.crt`, castr);        
+        await fs.writeFile(`/etc/docker/certs.d/${registryURL}/ca.crt`, castr);
 
         // generate auth password for the registry
         const registryPassword = randomKey(20);
         const registryUser = "registry";
         const passObj = await execDockerCmd(["run","--rm","--entrypoint","htpasswd","httpd:2","-Bbn",registryUser,registryPassword]);
         const htpasswd = passObj.stdout;
-        const htpasswdFile = path.join(root, "cert/htpasswd");        
+        const htpasswdFile = path.join(root, "cert/htpasswd");
         await fs.writeFile(htpasswdFile, htpasswd);
 
         console.log(`Pulling required images..`);
         await execComposesCmd(["pull"]);
 
-        console.log(`Starting registry. Registry URL: ${registryURL}`);        
+        console.log(`Starting registry. Registry URL: ${registryURL}`);
         ret = await execComposesCmd(["up", "-d", "nubo-registry"]);
 
         // login to the registry
@@ -298,7 +331,7 @@ It installs, configures and runs all the necessary components.
         settings.baseImage = `${registryURL}/nubo/${BASE_IMAGE}`
         settings.serverurl = `http://${hostname}/`;
         settings.controlPanelURL = `http://${hostname}:6080/`;
-        settings.nfshomefolder = path.join(root,"nfs/homes");        
+        settings.nfshomefolder = path.join(root,"nfs/homes");
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
 
 
@@ -309,12 +342,12 @@ It installs, configures and runs all the necessary components.
         ret = await execDockerCmd(["push",settings.baseImage]);
 
 
-        // delete old data        
-        await emptyDir('redis/data');        
+        // delete old data
+        await emptyDir('redis/data');
         await emptyDir('nubomanagement/docker_apps');
 
         // create log folder
-        await fs.mkdir(path.join(root, "log"), { recursive: true });        
+        await fs.mkdir(path.join(root, "log"), { recursive: true });
 
         console.log(`Creating database...`);
         await fs.mkdir(path.join(root, "mysql/data"), { recursive: true });
@@ -323,9 +356,13 @@ It installs, configures and runs all the necessary components.
         const mysqlPassword = randomKey(20);
 
         // start mysql container with the new password
+        dockerEnv['MYSQL_PASSWORD'] = mysqlPassword;
+        await writeINIFile(".env",dockerEnv);
         ret = await execComposesCmd(["up", "-d", "nubo-mysql"], { MYSQL_PASSWORD: mysqlPassword });
         //console.log(`start mysql: ${JSON.stringify(ret,null,2)}`);
         console.log(`Generated MySQL password: ${mysqlPassword}. Please save it to access your database.`);
+        dockerEnv['MYSQL_PASSWORD'] = "none";
+        await writeINIFile(".env",dockerEnv);
 
         // write the myql password in the management configuration
         let sconf = await readJSONFile('nubomanagement/conf/sysconf');
@@ -348,7 +385,7 @@ It installs, configures and runs all the necessary components.
             tryCnt++;
             try {
                 await sleep(3000);
-                // 
+                //
                 let ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'select user from mysql.user' | mysql -u root -p${mysqlPassword}`]);
                 schemaCreated = true;
             } catch (e) {
@@ -385,7 +422,7 @@ It installs, configures and runs all the necessary components.
         psConf.registerParams.user = "frontend";
         psConf.registerParams.password = frontEndPassword;
         await writeJSONFile("platform_server/conf/Settings.json", psConf);
-        
+
         const homesPath = path.join(root,"nfs/homes");
         // configure nfs server
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'update nfs_servers set nfsip="local", sship="local" , nfspath="${homesPath}"' | mysql -u root -p${mysqlPassword} nubo`]);
@@ -410,7 +447,7 @@ It installs, configures and runs all the necessary components.
                 pvols[i].target = homesPath;
             }
         }
-        await writeYamlFile("docker-compose.yml",comp);        
+        await writeYamlFile("docker-compose.yml",comp);
 
         // start management container with the new password
         ret = await execComposesCmd(["up", "-d", "nubo-management"]);
@@ -447,25 +484,17 @@ It installs, configures and runs all the necessary components.
         }
 
         console.log("Configuring organization and user...");
-        ret = await execDockerCmd(["exec","nubo-management","/bin/bash", "-c", `cd /opt/nubomanagement ; node dist/createAdmin.js -e ${adminemail} -p "${adminpass}" -d ${admindomain} -s -a`]);
+        ret = await execDockerCmd(["exec","nubo-management","node", "dist/createAdmin.js", "-e", `${adminemail}`, "-p", `${adminpass}`, "-d", `${admindomain}`, "-s", "-a"]);
         //console.log(`res: ${JSON.stringify(ret,null,2)}`);
 
         // configure default platform
         ret = await execDockerCmd(["exec", "nubo-mysql", "/bin/bash", "-c", `echo 'insert into static_platforms (platid , ip , vmname) values (1,"nubo-ps","nubo-ps");' | mysql -u root -p${mysqlPassword} nubo`]);
-        
+
         // Change the platform pool to start one platform (we need to re-read the Settings.json)
         settings = await readJSONFile('nubomanagement/conf/Settings.json');
         settings.platformParams.platformPoolSize = 1;
         await writeJSONFile('nubomanagement/conf/Settings.json', settings);
         ret = await execComposesCmd(["restart", "nubo-management"]);
-
-
-        // create .env file to help user to use docker compose command
-        const envStr = `
-MYSQL_PASSWORD=none
-ROOT_DIR=${root}`;
-        const envFile = path.join(root,".env");
-        await fs.writeFile(envFile,envStr);
 
         console.log(`
 Linux Remote Desktop is successfully installed.
