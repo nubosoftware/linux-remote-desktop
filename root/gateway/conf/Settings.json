@@ -1,8 +1,8 @@
-{ 
+{
  "guacPort": "4822",
  "base_index": "0",
  "internal_ip": "auto",
- "external_ip": "nubo-gateway", 
+ "external_ip": "nubo-gateway",
  "redisWrapperUrl": "http://nubo-management:8080",
  "backendAuthUser" : "frontend",
  "backendAuthPassword" : "none",
@@ -11,6 +11,11 @@
  "playerPort": false,
  "sslPlayerPort": false,
  "platformRTPPort": false,
- "playerRTPPort": false
+ "playerRTPPort": false,
+ "syslogParams": {
+    "host": "nubo-rsyslog",
+    "protocol": "udp",
+    "port": 5514
+ }
 }
 

@@ -1,4 +1,4 @@
-{  
+{
   "listenAddresses": [
     "http://:3333",
     "https://:3334"
@@ -7,5 +7,10 @@
     "mgmtURL": "http://nubo-management:8080",
     "user": "frontend",
     "password": "none"
+  },
+  "syslogParams": {
+    "host": "nubo-rsyslog",
+    "protocol": "udp",
+    "port": 5514
   }
 }

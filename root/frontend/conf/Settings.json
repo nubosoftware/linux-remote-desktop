@@ -38,5 +38,10 @@
         "serverID": "DEFAULT",
         "authKey": "DEFAULT"
     },
+    "syslogParams": {
+        "host": "nubo-rsyslog",
+        "protocol": "udp",
+        "port": 5514
+    },
     "username": false
 }

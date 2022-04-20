@@ -6,7 +6,7 @@
     "authValidatorPermittedMode": false,
     "serverurl": "http://myserver.com/",
     "internalurl": "http://nubo-management:8080/",
-    "nfsserver": "local",    
+    "nfsserver": "local",
     "nfshomefolder": "/srv/nfs/homes/",
     "sessionTimeout": 600,
     "sshPrivateKey": ".ssh/id_rsa",
@@ -28,7 +28,7 @@
             "user": "user",
             "pass": "pass"
         }
-    },   
+    },
     "startPlatformNum": 1,
     "platformParams": {
         "poolStrategy": "StartAll",
@@ -46,9 +46,14 @@
         "fixedPool": true,
         "cleanPlatformsMode": false
     },
-    "platformCred": false,    
-    "http_proxy": false,        
-    "publicServerCredentials": {},    
+    "platformCred": false,
+    "http_proxy": false,
+    "publicServerCredentials": {},
     "autoActivationOnce": true,
-    "guacAddr": "nubo-gateway"
+    "guacAddr": "nubo-gateway",
+    "syslogParams": {
+        "host": "nubo-rsyslog",
+        "protocol": "udp",
+        "port": 5514
+    }
 }
