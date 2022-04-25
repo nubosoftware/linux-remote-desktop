@@ -167,6 +167,9 @@ services:
     - type: bind
       source: ./common/etc/rsyslog.d
       target: /etc/rsyslog.d
+    - type: bind
+      source: /opt/nubo/nfs/homes/recording
+      target: /opt/nubo/nfs/homes/recording
     networks:
       - net_fe
       - net_sess

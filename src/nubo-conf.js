@@ -447,6 +447,15 @@ It installs, configures and runs all the necessary components.
                 pvols[i].target = homesPath;
             }
         }
+        let recordingPath = path.join(homesPath,"recording");
+        let gvols = comp.services['nubo-gateway'].volumes;
+        for (let i=0; i<gvols.length;i++) {
+            if (gvols[i].source == "/opt/nubo/nfs/homes/recording") {
+                gvols[i].source = recordingPath;
+                gvols[i].target = recordingPath;
+            }
+        }
+        await fs.chown(recordingPath, 1000, 1000);
         await writeYamlFile("docker-compose.yml",comp);
 
         // start management container with the new password
