@@ -71,7 +71,7 @@ i="100"
 while [ $i -gt 1 ]
 do
     $SUDO docker run \
-        --rm
+        --rm \
         -e DEF_HOSTNAME="$HOSTNAME" \
         -e DOCKER_ENV='YES' \
         -v /etc/docker:/etc/docker \
