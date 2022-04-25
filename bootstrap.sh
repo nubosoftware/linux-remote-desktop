@@ -48,8 +48,8 @@ else
     exit 1;
 fi
 
-if [ ! -d "/etc/docker" ] 
-then   
+if [ ! -d "/etc/docker" ]
+then
     echo "Directory /etc/docker does not exists. Creating it.."
     $SUDO mkdir -p /etc/docker
 fi
@@ -60,8 +60,8 @@ if [ ! -f /etc/docker/daemon.json ]; then
 fi
 
 
-if [ ! -d "$HOME" ] 
-then   
+if [ ! -d "$HOME" ]
+then
     echo "Directory $HOME does not exists. Creating it.."
     $SUDO mkdir -p "$HOME"
 fi
@@ -71,6 +71,7 @@ i="100"
 while [ $i -gt 1 ]
 do
     $SUDO docker run \
+        --rm
         -e DEF_HOSTNAME="$HOSTNAME" \
         -e DOCKER_ENV='YES' \
         -v /etc/docker:/etc/docker \
@@ -78,8 +79,8 @@ do
         -v $HOME:$HOME \
         -it nubosoftware/linux-remote-desktop:$TAG node src/nubo-conf.js -p $HOME
     i="$?"
-    if [ $i -eq 2 ] 
-    then 
+    if [ $i -eq 2 ]
+    then
         echo "Reload docker"
         $SUDO systemctl reload docker
     fi
